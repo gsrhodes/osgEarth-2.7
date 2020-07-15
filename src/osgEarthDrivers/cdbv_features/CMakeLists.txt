@@ -1,11 +1,13 @@
 SET(TARGET_SRC
     FeatureSourceCDBV.cpp
     FeatureCursorCDBV.cpp
+    ../../CDB_TileLib/CDB_Tile.cpp
 )
 
 SET(TARGET_H
     FeatureCursorCDBV    
     CDBVFeatureOptions
+    ../../CDB_TileLib/CDB_Tile
 )
 
 INCLUDE_DIRECTORIES( ${GDAL_INCLUDE_DIR} )

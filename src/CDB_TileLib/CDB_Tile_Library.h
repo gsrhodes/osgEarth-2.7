@@ -1,6 +1,10 @@
 #pragma once
-#ifdef CDB_TILELIB_EXPORTS
-#define CDBTILELIBRARYAPI __declspec(dllexport)
+#if 1 // hack
+  #define CDBTILELIBRARYAPI
 #else
-#define CDBTILELIBRARYAPI __declspec(dllimport)
+  #ifdef CDB_TILELIB_EXPORTS
+  #define CDBTILELIBRARYAPI __declspec(dllexport)
+  #else
+  #define CDBTILELIBRARYAPI __declspec(dllimport)
+  #endif
 #endif
