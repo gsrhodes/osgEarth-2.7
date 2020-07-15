@@ -138,15 +138,18 @@ namespace
                     {
                         const Symbology::Polygon* poly = static_cast<const Symbology::Polygon*>(input);
                         std::vector<geom::Geometry*>* holes = poly->getHoles().size() > 0 ? new std::vector<geom::Geometry*>() : 0L;
-                        for( Symbology::RingCollection::const_iterator r = poly->getHoles().begin(); r != poly->getHoles().end(); ++r )
+                        if (holes)
                         {
-                            geom::Geometry* hole = import( r->get(), f );
-                            if ( hole ) holes->push_back( hole );
-                        }
-                        if ( holes && holes->size() == 0 )
-                        {
-                            delete holes;
-                            holes = 0L;
+                            for (Symbology::RingCollection::const_iterator r = poly->getHoles().begin(); r != poly->getHoles().end(); ++r)
+                            {
+                                geom::Geometry* hole = import(r->get(), f);
+                                if (hole) holes->push_back(hole);
+                            }
+                            if (holes->size() == 0)
+                            {
+                                delete holes;
+                                holes = 0L;
+                            }
                         }
                         output = f->createPolygon( shell, holes );
                     }
@@ -212,7 +215,11 @@ GEOSContext::GEOSContext()
     geos::geom::PrecisionModel* pm = new geos::geom::PrecisionModel(geom::PrecisionModel::FLOATING);
 
     // Factory will clone the PM
+#if 1 // GEOS_VERSION_MAJOR >= 3 && GEOS_VERSION_MINOR >= 6
+    _factory = geos::geom::GeometryFactory::create(pm);
+#else
     _factory = new geos::geom::GeometryFactory( pm );
+#endif
 
     // Delete the template.
     delete pm;
@@ -220,7 +227,9 @@ GEOSContext::GEOSContext()
 
 GEOSContext::~GEOSContext()
 {
+#if 0 // GEOS_VERSION_MAJOR >= 3 && GEOS_VERSION_MINOR >= 6
     delete _factory;
+#endif
 }
 
 geom::Geometry*
@@ -228,7 +237,9 @@ GEOSContext::importGeometry(const Symbology::Geometry* input)
 {
     geom::Geometry* output = 0L;
     if ( input && input->isValid() )
-    {
+#if 1 // GEOS_VERSION_MAJOR >= 3 && GEOS_VERSION_MINOR >= 6
+        output = import(input, _factory.get());
+#else
         output = import( input, _factory );
 
         // if output is ok, it will have a pointer to f. this is probably a leak.
@@ -236,6 +247,7 @@ GEOSContext::importGeometry(const Symbology::Geometry* input)
         //if ( !output )
         //    delete f;
     }
+#endif
     return output;
 }
 
@@ -325,13 +337,14 @@ GEOSContext::exportGeometry(const geom::Geometry* input)
 void
 GEOSContext::disposeGeometry(geom::Geometry* input)
 {
-    if (input)
-    {
+#if 1 // GEOS_VERSION_MAJOR >= 3 && GEOS_VERSION_MINOR >= 6
+        _factory->destroyGeometry(input);
+#else
         geom::GeometryFactory* f = const_cast<geom::GeometryFactory*>(input->getFactory());
         _factory->destroyGeometry(input);
         if ( f != _factory )
             delete f;
-    }
+#endif
 }
 
 #endif // OSGEARTH_HAVE_GEOS
