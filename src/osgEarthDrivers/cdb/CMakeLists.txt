@@ -3,13 +3,13 @@ INCLUDE_DIRECTORIES( ${GDAL_INCLUDE_DIR} )
 SET(TARGET_COMMON_LIBRARIES ${TARGET_COMMON_LIBRARIES})
 
 SET(TARGET_SRC
-    CDB_Tile.cpp
+    ../../CDB_TileLib/CDB_Tile.cpp
 	CDBTileSource.cpp
 	CDBTileSourceDriver.cpp
 )
 
 SET(TARGET_H
-    CDB_Tile
+    ../../CDB_TileLib/CDB_Tile
 	CDBTileSource
 	CDBTileSourceDriver
 )
